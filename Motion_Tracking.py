@@ -9,8 +9,8 @@ import math
 def to_blender_space(landmark):
     """Converts MediaPipe screen coordinates to Blender 3D coordinates."""
     bx = landmark.x
-    by = landmark.z
-    bz = -landmark.y
+    by = -landmark.z
+    bz = landmark.y
     return bx,by,bz
 
 def calculate_3d_angles(parent_joint, child_joint):
@@ -48,10 +48,10 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = holistic.process(img)
         img = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        mp_drawing.draw_landmarks(img,results.right_hand_landmarks,mp_holistic.HAND_CONNECTIONS)
-        mp_drawing.draw_landmarks(img, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+        #mp_drawing.draw_landmarks(img,results.right_hand_landmarks,mp_holistic.HAND_CONNECTIONS)
+        #mp_drawing.draw_landmarks(img, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
         mp_drawing.draw_landmarks(img, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
-        mp_drawing.draw_landmarks(img, results.face_landmarks, mp_holistic.FACEMESH_CONTOURS)
+        #mp_drawing.draw_landmarks(img, results.face_landmarks, mp_holistic.FACEMESH_CONTOURS)
 
         if results.pose_landmarks:
                 '''index_tip = results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.INDEX_FINGER_TIP]'''
@@ -61,7 +61,7 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
                 live_pitch, live_yaw = calculate_3d_angles(elbow, wrist)
 
                 data = {
-                     'RightForeArm' : [live_pitch, 0.0, live_yaw]
+                     'mixamorig:LeftForeArm' : [live_pitch, 0.0, live_yaw]
                 }
                 '''
                 lm = results.right_hand_landmarks.landmark[elbow]

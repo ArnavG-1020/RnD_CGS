@@ -48,7 +48,7 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = holistic.process(img)
         img = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        #mp_drawing.draw_landmarks(img,results.right_hand_landmarks,mp_holistic.HAND_CONNECTIONS)
+        mp_drawing.draw_landmarks(img,results.right_hand_landmarks,mp_holistic.HAND_CONNECTIONS)
         #mp_drawing.draw_landmarks(img, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
         mp_drawing.draw_landmarks(img, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
         #mp_drawing.draw_landmarks(img, results.face_landmarks, mp_holistic.FACEMESH_CONTOURS)
@@ -57,11 +57,19 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
                 '''index_tip = results.right_hand_landmarks.landmark[mp_holistic.HandLandmark.INDEX_FINGER_TIP]'''
                 elbow = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_ELBOW]
                 wrist = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_WRIST]
+                shoulder = results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_SHOULDER]
 
-                live_pitch, live_yaw = calculate_3d_angles(elbow, wrist)
+                p_elbow, y_elbow = calculate_3d_angles(elbow, wrist)
+                p_shoulder, y_shoulder = calculate_3d_angles(shoulder,elbow)
 
+                dx = wrist.x - elbow.x
+                dy = wrist.y - elbow.y
+                flat_angle = math.atan2(dy,dx)
+                calibrated_angle = flat_angle - (math.pi / 2)
                 data = {
-                     'mixamorig:LeftForeArm' : [live_pitch, 0.0, live_yaw]
+                     #'mixamorig:RightForeArm' : [3*(p_elbow), 0.0, 3*(y_elbow)],
+                     #'mixamorig:RightArm' : [0.5*(p_shoulder),0.0,0.5*(y_shoulder)]
+                    "mixamorig:RightForeArm" : [calibrated_angle, 0.0, 0.0]
                 }
                 '''
                 lm = results.right_hand_landmarks.landmark[elbow]
